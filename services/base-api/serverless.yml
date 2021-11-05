@@ -1,0 +1,64 @@
+service: use-reducer-login-base-api
+
+plugins:
+  - serverless-bundle
+  - serverless-offline
+  - '@haftahave/serverless-ses-template'
+
+custom: ${file(../../serverless.common.yml):custom}
+
+package:
+  individually: true
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: dev
+  region: us-west-2
+  tracing:
+    apiGateway: true
+    lambda: true
+  # These environment variables are made available to our functions
+  # under process.env.
+  environment:
+    stage: ${self:custom.stage}
+    resourcesStage: ${self:custom.resourcesStage}
+
+resources:
+  - Resources:
+      RestApi:
+        Type: AWS::ApiGateway::RestApi
+        Properties:
+          Name: ${self:custom.stage}-use-reducer-login-rest-api
+      WebsocketApi:
+        Type: AWS::ApiGatewayV2::Api
+        Properties:
+          Name: ${self:custom.stage}-use-reducer-login-websocket-api
+          ProtocolType: WEBSOCKET
+          RouteSelectionExpression: '$request.body.action'
+
+  - Outputs:
+      ApiGatewayRestApiId:
+        Value:
+          Ref: RestApi
+        Export:
+          Name: ${self:custom.stage}-RestApiId
+
+      ApiGatewayRestApiRootResourceId:
+        Value:
+          Fn::GetAtt:
+            - RestApi
+            - RootResourceId
+        Export:
+          Name: ${self:custom.stage}-RestApiRootResourceId
+
+      WebsocketApiId:
+        Value:
+          Ref: WebsocketApi
+        Export:
+          Name: ${self:custom.stage}-WebsocketApiId
+
+  # API Gateway Errors
+  - ${file(resources/api-gateway-errors.yml)}
+  # Cognito Identity Pool Policy
+  - ${file(resources/cognito-policy.yml)}

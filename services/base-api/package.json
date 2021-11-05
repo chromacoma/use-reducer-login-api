@@ -1,0 +1,17 @@
+{
+  "name": "use-reducer-login-api-base",
+  "version": "1.0.0",
+  "description": "",
+  "main": "create.js",
+  "scripts": {
+    "test": "serverless-bundle test"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@haftahave/serverless-ses-template": "^2.0.0",
+    "serverless": "^1.78.1",
+    "uuid": "^7.0.3"
+  }
+}
